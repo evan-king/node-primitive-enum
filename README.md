@@ -79,7 +79,8 @@ myEnum.reverseMap; // => {x: 'a', z: 'c', y: 'b'}
 Find any value or key by its corresponding property-like pair.
 
 ###### Enum.prop
-```javascsript
+
+```javascript
 myEnum.a; // => x
 myEnum.x; // => a
 ```
@@ -87,6 +88,7 @@ myEnum.x; // => a
 For non-strings and strings that cannot be used as property names, use array or function access.
 
 ###### Enum['prop']
+
 ```javascript
 const uglyEnum = {'string with spaces': 12}
 
@@ -98,6 +100,7 @@ Note that all keys and values must be castable to strings for lookup.
 Primitive-enum is not intended to support non-primitive keys or values.
 
 ###### Enum('prop')
+
 ```javascript
 uglyEnum(12); // => 'string with spaces'
 ```
@@ -105,12 +108,14 @@ uglyEnum(12); // => 'string with spaces'
 For explicit lookup among only keys or values, use one-way lookup methods.
 
 ###### Enum.key('prop')
+
 ```javascript
 myEnum.key('a'); // => 'x'
 myEnum.key('x'); // => undefined
 ```
 
 ###### Enum.value('prop')
+
 ```javascript
 myEnum.value('x'); // => 'a'
 myEnum.value('a'); // => undefined
@@ -201,4 +206,5 @@ in the case of matching key-value pairs where key == value.  This is partly to e
 enum-defining conventions, and partly to ensure reliability of the most convenient means of
 performing enum lookups which support keys and values interchangeably.
 
-Lastly, all keys and values are expected to be simple primitives, castable to strings.
+Lastly, all keys are expected to be strings, and values expected to be simple primitives,
+castable to strings.
