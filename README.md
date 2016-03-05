@@ -1,5 +1,5 @@
 
-# primitive-enum [![Build Status](https://travis-ci.org/evan-king/node-primitive-enum.svg)](https://travis-ci.org/evan-king/node-primitive-enum) [![Coverage Status](https://coveralls.io/repos/github/evan-king/node-primitive-enum/badge.svg?branch=master)](https://coveralls.io/github/evan-king/node-primitive-enum?branch=master)
+# primitive-enum [![Build Status](https://travis-ci.org/evan-king/node-primitive-enum.svg)](https://travis-ci.org/evan-king/node-primitive-enum)
 
 Primitive-enum is a a lightweight enum generator that aims to optimize convenience
 and utility without resorting to enumerated keys, values, or pairs wrapped in objects.

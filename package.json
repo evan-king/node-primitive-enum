@@ -22,8 +22,6 @@
   "homepage": "https://github.com/evan-king/node-primitive-enum#readme",
   "devDependencies": {
     "chai": "^3.5.0",
-    "coveralls": "^2.11.8",
-    "mocha": "^2.4.5",
-    "mocha-lcov-reporter": "^1.2.0"
+    "mocha": "^2.4.5"
   }
 }

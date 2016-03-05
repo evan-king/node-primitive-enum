@@ -2,7 +2,4 @@ language: node_js
 node_js:
 - 5.3.0
 script:
-- ./node_modules/.bin/mocha
-after_success:
-- ./node_modules/.bin/jscoverage lib lib-cov
-- ./node_modules/.bin/mocha test.js -R mocha-lcov-reporter | ./node_modules/.bin/coveralls
+- ./node_modules/.bin/mocha test.js
