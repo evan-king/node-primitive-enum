@@ -1,6 +1,6 @@
 {
   "name": "primitive-enum",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "Lightweight enums with primitive datatypes",
   "main": "index.js",
   "scripts": {
