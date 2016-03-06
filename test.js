@@ -4,7 +4,7 @@ const
     expect = require('chai').expect,
     Enum = require('./index');
 
-describe.only('Enums from primitive-enum', function() {
+describe('Enums from primitive-enum', function() {
 
     const
         they = it,
@@ -62,6 +62,7 @@ describe.only('Enums from primitive-enum', function() {
     they('reject maps with lookup conflict', function(done) {
         expect(Enum.bind(null, {a: 'x', b: 'x'})).throw;
         expect(Enum.bind(null, {a: 'b', b: 'c'})).throw;
+        expect(Enum.bind(null, ['a', 'a', 'b'])).throw;
         done();
     });
     
@@ -80,6 +81,10 @@ describe.only('Enums from primitive-enum', function() {
         expect(mapEnum('z')).eql('c');
         expect(mapEnum.a).eql('x');
         expect(mapEnum.x).eql('a');
+        expect(mapEnum.key('a')).eql(undefined);
+        expect(mapEnum.key('x')).eql('a');
+        expect(mapEnum.value('x')).eql(undefined);
+        expect(mapEnum.value('a')).eql('x');
         expect(seqEnum['4']).eql('d');
         expect(seqEnum.d).eql(4);
         done();
@@ -106,7 +111,7 @@ describe.only('Enums from primitive-enum', function() {
         done();
     });
     
-    they('apply default transforms', function(done) {
+    they('use default transforms', function(done) {
         Enum.defaultObjectTransform = (propvalue, propname) => propname.toUpperCase();
         expect(Enum({a: 1, b: 2}).map).eql({a: 'A', b: 'B'});
         

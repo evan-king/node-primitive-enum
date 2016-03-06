@@ -1,10 +1,14 @@
 "use strict";
 
 /**
- * Enum builder, wraps arrays and maps in a function that
+ * Enum builder - wraps arrays and maps in a function that
  * supplies (precomputed) key and value lists, maps, and
- * reverse maps.  Also provides O(1) bidirectional lookups.
+ * reverse maps.  Supplies multiple means of lookup and
+ * reference, and offers full control over how enum values
+ * are generated.
+ * 
  * @author Evan King
+ * @see https://github.com/evan-king/node-primitive-enum
  * 
  * Usage:
  *     const myEnum = Enum({a: 'x', b: 'y'});

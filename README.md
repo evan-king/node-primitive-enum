@@ -1,12 +1,14 @@
 
-# primitive-enum [![Build Status](https://travis-ci.org/evan-king/node-primitive-enum.svg)](https://travis-ci.org/evan-king/node-primitive-enum)
+# primitive-enum
+
+[![Build Status](https://travis-ci.org/evan-king/node-primitive-enum.svg)](https://travis-ci.org/evan-king/node-primitive-enum)
 
 Primitive-enum is a a lightweight enum generator that aims to optimize convenience
 and utility without resorting to enumerated keys, values, or pairs wrapped in objects.
 This enum facility may be the best fit if you need full control over how values are
 generated for enumerated properties, want efficient lookup for both properties and
-values, and want to only use primitive values for broadest interoperability preserving
-terse representation and reference.
+values, want to maximize interoperability by keeping values primitive (string, int,
+float), or just want to reference enums via terse expressions.
 
 ## Basic Usage
 
@@ -18,12 +20,12 @@ const Enum = require('primitive-enum');
 const myEnum = Enum({a: 'x', c: 'z', b: 'y'});
 
 myEnum instanceof Enum; // => true
-myEnum.name; // => 'Enum'
+myEnum.name; // => 'PrimitiveEnum'
 myEnum.keys; // => ['a', 'c', 'b'];
+myEnum.values; // => ['x', 'z', 'y'];
 myEnum.a; // => 'x'
 myEnum.x; // => 'a'
 myEnum['a']; // => 'x'
-myEnum.values; // => ['x', 'z', 'y'];
 myEnum.count; // => 3
 
 var keys = [];
@@ -78,7 +80,7 @@ myEnum.reverseMap; // => {x: 'a', z: 'c', y: 'b'}
 
 Find any value or key by its corresponding property-like pair.
 
-###### Enum.prop
+###### Enum._propname_
 
 ```javascript
 myEnum.a; // => x
@@ -87,7 +89,7 @@ myEnum.x; // => a
 
 For non-strings and strings that cannot be used as property names, use array or function access.
 
-###### Enum['prop']
+###### Enum['_propname_']
 
 ```javascript
 const uglyEnum = {'string with spaces': 12}
@@ -96,29 +98,34 @@ uglyEnum['string with spaces']; // => 12
 uglyEnum[''+12]; // => 'string with spaces'
 ```
 
-Note that all keys and values must be castable to strings for lookup.
+Note that array lookup must be by string keys or values cast to strings.
+The returned value for any key will however be in its original primitive
+form.  Lookups by non-string primitive types can be performed using the
+following function-based lookup options.
+
 Primitive-enum is not intended to support non-primitive keys or values.
 
-###### Enum('prop')
+###### Enum('_propname_')
 
 ```javascript
+uglyEnum('string with spaces'); // => 12
 uglyEnum(12); // => 'string with spaces'
 ```
 
 For explicit lookup among only keys or values, use one-way lookup methods.
 
-###### Enum.key('prop')
+###### Enum.key(value)
 
 ```javascript
-myEnum.key('a'); // => 'x'
-myEnum.key('x'); // => undefined
+myEnum.key('x'); // => 'a'
+myEnum.key('a'); // => undefined
 ```
 
-###### Enum.value('prop')
+###### Enum.value(key)
 
 ```javascript
-myEnum.value('x'); // => 'a'
-myEnum.value('a'); // => undefined
+myEnum.value('a'); // => 'x'
+myEnum.value('x'); // => undefined
 ```
 
 ### Value Transforms
@@ -197,14 +204,15 @@ const evenEnum = Enum(['a', 'b'], even);
 evenEnum.map; // => {a: 2, b: 4}
 ```
 
-### Input Restrictions
+### Limitations
 
 By design, primitive-enum does not allow the same value to be used as two different keys
 nor as two different values.  Future support for explicit enum property aliases is plausible
-but not planned.  Additionally, no value may be used as both enum key and enum value, except
-in the case of matching key-value pairs where key == value.  This is partly to enforce good
-enum-defining conventions, and partly to ensure reliability of the most convenient means of
-performing enum lookups which support keys and values interchangeably.
+but not planned.  Additionally, no same value may be used as both enum key and enum value,
+except in the case of matching key-value pairs where key == value.  This is partly to enforce
+good enum-defining conventions, and partly to minimize drawbacks of using the most convenient
+means of performing enum lookups - which works with keys and values interchangeably.
 
-Lastly, all keys are expected to be strings, and values expected to be simple primitives,
-castable to strings.
+Lastly, all enum keys and values are expected to be simple primitives, castable to strings.
+Instead supplying custom objects which cast to (unique) strings should also work, but is not
+explicitly supported at this time.
