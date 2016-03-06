@@ -85,8 +85,8 @@ Find any value or key by its corresponding property-like pair.
 ###### Enum._propname_
 
 ```javascript
-myEnum.a; // => x
-myEnum.x; // => a
+myEnum.a; // => 'x'
+myEnum.x; // => 'a'
 ```
 
 For non-strings and strings that cannot be used as property names, use array or function access.
