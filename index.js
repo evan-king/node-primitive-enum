@@ -55,6 +55,12 @@ const Enum = function PrimitiveEnumBuilder(inputMap, transform) {
         });
     }
     
+    function index(val) {
+        if(val === undefined) return index.def || 0;
+        if(keys[val] === undefined) throw new Error('Default out of bounds');
+        return index.def = val;
+    }
+    
     function addMapping(key, val) {
         key.__proto__ = API;
         val.__proto__ = API;
@@ -83,8 +89,18 @@ const Enum = function PrimitiveEnumBuilder(inputMap, transform) {
     prop('keys', Object.freeze(keys));
     prop('values', Object.freeze(values));
     prop('count', keys.length);
-    prop('key', Object.freeze(val => reverseMap[''+val]));
-    prop('value', Object.freeze(key => map[''+key]));
+    prop('key', val => reverseMap[''+val]);
+    prop('value', key => map[''+key]);
+    
+    Object.defineProperty(API, 'defaultKey', {
+        get: () => keys[index()],
+        set: (k) => index(keys.indexOf(''+k))
+    });
+    
+    Object.defineProperty(API, 'defaultValue', {
+        get: () => values[index()],
+        set: (v) => index(values.indexOf(''+v))
+    });
     
     return Object.freeze(API);
 }

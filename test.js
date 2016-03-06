@@ -20,6 +20,10 @@ describe('Enums from primitive-enum', function() {
     
     they('are immutable', function(done) {
         expect(() => mapEnum.c.d = 'q').throw;
+        expect(() => mapEnum.key.c = 'q').throw;
+        expect(() => mapEnum.value.c = 'q').throw;
+        expect(() => mapEnum.defaultKey.d = 'q').throw;
+        expect(() => mapEnum.defaultValue.d = 'q').throw;
         
         expect(() => mapEnum.c = 'q').throw;
         expect(() => mapEnum.map.c = 'q').throw;
@@ -117,6 +121,23 @@ describe('Enums from primitive-enum', function() {
         
         Enum.defaultArrayTransform = (value, idx) => value.toUpperCase();
         expect(Enum(['a', 'b']).map).eql({a: 'A', b: 'B'});
+        done();
+    });
+    
+    they('maintain default keys and values', function(done) {
+        expect(mapEnum.defaultKey).eql(mapEnum.keys[0]);
+        expect(mapEnum.defaultValue).eql(mapEnum.values[0]);
+        
+        mapEnum.defaultValue = mapEnum.values[1];
+        expect(mapEnum.defaultKey).eql(mapEnum.keys[1]);
+        expect(mapEnum.defaultValue).eql(mapEnum.values[1]);
+        
+        mapEnum.defaultKey = mapEnum.keys[2];
+        expect(mapEnum.defaultKey).eql(mapEnum.keys[2]);
+        expect(mapEnum.defaultValue).eql(mapEnum.values[2]);
+        
+        expect(() => mapEnum.defaultKey = 'd').throw;
+        
         done();
     });
     

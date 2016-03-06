@@ -26,6 +26,8 @@ myEnum.values; // => ['x', 'z', 'y'];
 myEnum.a; // => 'x'
 myEnum.x; // => 'a'
 myEnum['a']; // => 'x'
+myEnum.defaultKey; // => 'a'
+myEnum.defaultValue; // => 'x'
 myEnum.count; // => 3
 
 var keys = [];
@@ -105,7 +107,7 @@ following function-based lookup options.
 
 Primitive-enum is not intended to support non-primitive keys or values.
 
-###### Enum('_propname_')
+###### Enum(prop)
 
 ```javascript
 uglyEnum('string with spaces'); // => 12
@@ -126,6 +128,24 @@ myEnum.key('a'); // => undefined
 ```javascript
 myEnum.value('a'); // => 'x'
 myEnum.value('x'); // => undefined
+```
+
+###### Enum.defaultKey
+
+```javascript
+myEnum.defaultKey; // => 'a'
+myEnum.defaultKey = 'b'; // => 'b'
+myEnum.defaultValue; // => 'y'
+myEnum.defaultKey = 'd'; // throws Error
+```
+
+###### Enum.defaultValue
+
+```javascript
+myEnum.defaultValue; // => 'y'
+myEnum.defaultValue = 'x'; // => 'x'
+myEnum.defaultKey; // => 'a'
+myEnum.defaultValue = 'w'; // throws Error
 ```
 
 ### Value Transforms
