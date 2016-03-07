@@ -173,8 +173,8 @@ myEnum.defaultValue; // => 'x'
 myEnum.defaultValue = 'y'; // throws Error
 ```
 
-PrimitiveEnum instances are string-comparable, so long as their enumerated values are
-comparable primitives, and serializable.  The constructed results are preserved, but
+PrimitiveEnum instances are string-comparable - so long as their enumerated values are
+comparable primitives - and serializable.  The constructed results are preserved, but
 details of construction are discarded.
 
 ###### Enum.toString()
@@ -184,7 +184,7 @@ const
     enum1 = Enum(['a', 'b', 'c'], Enum.bitwise),
     enum2 = Enum({a: 1, b: 2, c: 4});
 
-enum1.toString(); // => '[Function: PrimitiveEnum] a,b,c|1,2,3|0
+enum1.toString(); // => '[Function: PrimitiveEnum] a,b,c|1,2,4|0
 ''+enum1 == enum2; // => true
 ```
 
