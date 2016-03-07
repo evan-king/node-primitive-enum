@@ -1,7 +1,11 @@
 
 # primitive-enum
 
-[![Build Status](https://travis-ci.org/evan-king/node-primitive-enum.svg)](https://travis-ci.org/evan-king/node-primitive-enum)
+[![version][version-img]][version-url]
+[![npm][npmjs-img]][npmjs-url]
+[![build status][travis-img]][travis-url]
+[![deps status][daviddm-img]][daviddm-url]
+[![mit license][license-img]][license-url]
 
 Primitive-enum is a a lightweight enum generator that aims to optimize convenience
 and utility without resorting to enumerated keys, values, or pairs wrapped in objects.
@@ -236,3 +240,21 @@ means of performing enum lookups - which works with keys and values interchangea
 Lastly, all enum keys and values are expected to be simple primitives, castable to strings.
 Instead supplying custom objects which cast to (unique) strings should also work, but is not
 explicitly supported at this time.
+
+[version-url]: https://github.com/evan-king/node-primitive-enum/releases
+[version-img]: https://img.shields.io/github/release/evan-king/node-primitive-enum.svg?style=flat
+
+[npmjs-url]: https://www.npmjs.com/package/primitive-enum
+[npmjs-img]: https://img.shields.io/npm/v/primitive-enum.svg?style=flat
+
+[coveralls-url]: https://coveralls.io/r/evan-king/node-primitive-enum?branch=master
+[coveralls-img]: https://img.shields.io/coveralls/evan-king/node-primitive-enum.svg?style=flat
+
+[license-url]: https://github.com/evan-king/node-primitive-enum/blob/master/LICENSE
+[license-img]: https://img.shields.io/badge/license-MIT-blue.svg?style=flat
+
+[travis-url]: https://travis-ci.org/evan-king/node-primitive-enum
+[travis-img]: https://img.shields.io/travis/evan-king/node-primitive-enum.svg?style=flat
+
+[daviddm-url]: https://david-dm.org/evan-king/node-primitive-enum
+[daviddm-img]: https://img.shields.io/david/evan-king/node-primitive-enum.svg?style=flat
