@@ -7,12 +7,15 @@
 [![deps status][daviddm-img]][daviddm-url]
 [![mit license][license-img]][license-url]
 
-Primitive-enum is a a lightweight enum generator that aims to optimize convenience
-and utility without resorting to enumerated keys, values, or pairs wrapped in objects.
-This enum facility may be the best fit if you need full control over how values are
-generated for enumerated properties, want efficient lookup for both properties and
-values, want to maximize interoperability by keeping values primitive (string, int,
-float), or just want to reference enums via terse expressions.
+Primitive-enum is a a lightweight generator of immutable enums that aims to optimize
+convenience and utility without resorting to enumerated keys, values, or pairs wrapped
+in objects.  This enum facility may be the best fit if you:
+
+- want convenient lookup for both properties and values
+- need full control over how values are generated for enumerated properties
+- want to maximize interoperability by keeping values primitive (string, int, float)
+- want the reliability of immutable enums
+- or just want to keep enum usage terse
 
 ## Basic Usage
 
@@ -23,17 +26,33 @@ const Enum = require('primitive-enum');
 
 const myEnum = Enum({a: 'x', c: 'z', b: 'y'});
 
+// myEnum is identifiable
 myEnum instanceof Enum; // => true
 myEnum.name; // => 'PrimitiveEnum'
+
+// myEnum provides immutable metadata
 myEnum.keys; // => ['a', 'c', 'b'];
 myEnum.values; // => ['x', 'z', 'y'];
-myEnum.a; // => 'x'
-myEnum.x; // => 'a'
-myEnum['a']; // => 'x'
+myEnum.map; // => {a: 'x', c: 'z', b: 'y'}
+myEnum.reverseMap; // => {x: 'a', z: 'c', y: 'b'}
 myEnum.defaultKey; // => 'a'
 myEnum.defaultValue; // => 'x'
 myEnum.count; // => 3
 
+// myEnum supports multiple forms of expression and lookup
+myEnum.a; // => 'x'
+myEnum['a']; // => 'x'
+myEnum('a'); // => 'x'
+myEnum.value('a') // => 'x'
+myEnum.value('x') // => undefined
+
+myEnum.x; // => 'a'
+myEnum['x']; // => 'a'
+myEnum('x'); // => 'a'
+myEnum.key('x') // => 'a'
+myEnum.key('a') // => undefined
+
+// myEnum is iterable
 var keys = [];
 for(var key in myEnum) {
     keys.push(key);
@@ -46,11 +65,13 @@ keys; // => ['a', 'c', 'b']
 ### Construction
 
 ```javascript
-const myEnum = Enum(mapping, transform);
+const myEnum = Enum(mapping, options);
 ```
 
-* `mapping` is either an object defining key => value enum pairs, or an array listing only keys.
-* `transform` is a function of the form `fn(value, key|idx) => enum-value` used to transform or generate the enum values to pair with keys.  Several built-in transform options are available, along with configurable default behavior.  See [Value Transforms](#value-transforms).
+- `mapping` is either an object defining key => value enum pairs, or an array listing only keys.
+- `options` is either a configuration object or one of the properties accepted in one:
+  - `options.defaultKey` is a string identifying the default key (and by extension default value).  If unspecified, it will be the first key defined.
+  - `options.transform` is a function of the form `fn(value, key|idx) => enum-value` used to transform or generate the enum values to pair with keys.  Several built-in transform options are available, along with configurable default behavior.  See [Value Transforms](#value-transforms).
 
 ### Retrieval
 
@@ -134,23 +155,47 @@ myEnum.value('a'); // => 'x'
 myEnum.value('x'); // => undefined
 ```
 
+### Extras
+
+PrimitiveEnums also specify a default key/value, which is initially the first pair defined.
+
 ###### Enum.defaultKey
 
 ```javascript
 myEnum.defaultKey; // => 'a'
-myEnum.defaultKey = 'b'; // => 'b'
-myEnum.defaultValue; // => 'y'
-myEnum.defaultKey = 'd'; // throws Error
+myEnum.defaultKey = 'b'; // throws Error
 ```
 
 ###### Enum.defaultValue
 
 ```javascript
-myEnum.defaultValue; // => 'y'
-myEnum.defaultValue = 'x'; // => 'x'
-myEnum.defaultKey; // => 'a'
-myEnum.defaultValue = 'w'; // throws Error
+myEnum.defaultValue; // => 'x'
+myEnum.defaultValue = 'y'; // throws Error
 ```
+
+PrimitiveEnum instances are string-comparable, so long as their enumerated values are
+comparable primitives, and serializable.  The constructed results are preserved, but
+details of construction are discarded.
+
+###### Enum.toString()
+
+```javascript
+const
+    enum1 = Enum(['a', 'b', 'c'], Enum.bitwise),
+    enum2 = Enum({a: 1, b: 2, c: 4});
+
+enum1.toString(); // => '[Function: PrimitiveEnum] a,b,c|1,2,3|0
+''+enum1 == enum2; // => true
+```
+
+###### Enum.fromJSON(str|obj)
+
+```javascript
+const jsonStr = JSON.stringify(myEnum);
+const copiedEnum = Enum.fromJSON(jsonStr);
+''+copiedEnum == myEnum; // => true
+```
+
 
 ### Value Transforms
 
@@ -161,9 +206,9 @@ function to determine the paired enum values.  Several standard options are made
 through the enum constructor, and as well as configuration properties to alter the
 default choices.
 
-* `Enum.defaultArrayTransform` Default transform to use on arrays.  Initially [Enum.sequence](#enumsequence)
-* `Enum.defaultObjectTransform` Default transform to use on objects.  Initially unset (`Enum.defaultTransform` is used instead).
-* `Enum.defaultTransform` Default transform to use for arrays or objects if no input-type-specific transform is provided.  Initially [Enum.identity](#enumidentity).  Changing is supported but not advised.
+- `Enum.defaultArrayTransform` Default transform to use on arrays.  Initially [Enum.sequence](#enumsequence)
+- `Enum.defaultObjectTransform` Default transform to use on objects.  Initially unset (`Enum.defaultTransform` is used instead).
+- `Enum.defaultTransform` Default transform to use for arrays or objects if no input-type-specific transform is provided.  Initially [Enum.identity](#enumidentity).  Changing is supported but not advised.
 
 ###### Enum.identity
 
@@ -228,18 +273,29 @@ const evenEnum = Enum(['a', 'b'], even);
 evenEnum.map; // => {a: 2, b: 4}
 ```
 
-### Limitations
+## Limitations
 
 By design, primitive-enum does not allow the same value to be used as two different keys
-nor as two different values.  Future support for explicit enum property aliases is plausible
-but not planned.  Additionally, no same value may be used as both enum key and enum value,
-except in the case of matching key-value pairs where key == value.  This is partly to enforce
-good enum-defining conventions, and partly to minimize drawbacks of using the most convenient
-means of performing enum lookups - which works with keys and values interchangeably.
+nor as two different values.  Additionally, no same value may be used as both enum key
+and enum value, except in the case of matching key-value pairs where key == value.  This
+is partly to enforce good enum-defining conventions, and partly to minimize limitations
+of using the most convenient means of performing enum lookups - which works with keys and
+values interchangeably.
 
 Lastly, all enum keys and values are expected to be simple primitives, castable to strings.
-Instead supplying custom objects which cast to (unique) strings should also work, but is not
-explicitly supported at this time.
+Instead supplying custom objects which cast to (unique) strings may also work, but is not
+explicitly supported.
+
+## Roadmap
+
+The following features are planned for the 1.0 release:
+
+- Package for client-side use (with browser testing and elimination of es6 dependencies).
+- Add support for aliases (`options.aliases` probably as map of key => [alternate keys]).
+
+The following feature is being (weakly) considered:
+
+- Throw errors where possible when referencing an invalid enum key or value.
 
 [version-url]: https://github.com/evan-king/node-primitive-enum/releases
 [version-img]: https://img.shields.io/github/release/evan-king/node-primitive-enum.svg?style=flat

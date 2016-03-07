@@ -23,16 +23,30 @@
  *     myEnum.count: // 2
  * 
  * @param mixed inputMap Array of keys or Object mapping keys to values
- * @param mixed transform Function describing how to generate enum values from inputMap
+ * @param mixed options Configuration object supporting these options:
+ *      - transform: Function describing how to generate enum values from inputMap
+ *      - defaultKey: String specifying which key/value are considered the default option
+ *     Alternatively, options can be either one of those directly.
  */
-const Enum = function PrimitiveEnumBuilder(inputMap, transform) {
+const Enum = function PrimitiveEnumBuilder(inputMap, options) {
     
     const
+        opts = buildOptions(options),
         keys = [],
         values = [],
         map = {},
         reverseMap = {},
         API = function PrimitiveEnum(lookup) { return API[''+lookup]; } ;
+    
+    function buildOptions(options) {
+        switch(typeof options) {
+            case 'string': return {defaultKey: options};
+            case 'function': return {transform: options};
+            case 'object': return options;
+            case 'undefined': return {};
+            default: throw new TypeError('Invalid argument:' + typeof options);
+        }
+    }
     
     // Note: We don't want a value appearing twice on one side or
     //       appearing on both sides unless as part of the same mapping.
@@ -55,12 +69,6 @@ const Enum = function PrimitiveEnumBuilder(inputMap, transform) {
         });
     }
     
-    function index(val) {
-        if(val === undefined) return index.def || 0;
-        if(keys[val] === undefined) throw new Error('Default out of bounds');
-        return index.def = val;
-    }
-    
     function addMapping(key, val) {
         key.__proto__ = API;
         val.__proto__ = API;
@@ -73,6 +81,7 @@ const Enum = function PrimitiveEnumBuilder(inputMap, transform) {
         prop(val, key);
     }
     
+    let transform = opts.transform;
     if(Array.isArray(inputMap)) {
         if(transform === undefined) transform = Enum.defaultArrayTransform || Enum.identity;
         if(typeof transform !== 'function') throw new Error('Invalid transform');
@@ -83,6 +92,16 @@ const Enum = function PrimitiveEnumBuilder(inputMap, transform) {
         Object.keys(inputMap).forEach(key => addMapping(key, transform(inputMap[key], key)));
     }
     
+    const defIdx = (opts.defaultKey === undefined) ? 0 : keys.indexOf(opts.defaultKey);
+    if(defIdx < 0) throw new Error('Invalid default key');
+    
+    function toJSON() {
+        return { type: 'PrimitiveEnum', map: map, defaultKey: keys[defIdx] };
+    }
+    
+    // Provide a string representation for comparability
+    const asString = '[Function: PrimitiveEnum] '+keys.join(',')+'|'+values.join(',')+'|'+defIdx;
+    
     API.__proto__ = Enum.prototype;
     prop('map', Object.freeze(map));
     prop('reverseMap', Object.freeze(reverseMap));
@@ -91,16 +110,10 @@ const Enum = function PrimitiveEnumBuilder(inputMap, transform) {
     prop('count', keys.length);
     prop('key', val => reverseMap[''+val]);
     prop('value', key => map[''+key]);
-    
-    Object.defineProperty(API, 'defaultKey', {
-        get: () => keys[index()],
-        set: (k) => index(keys.indexOf(''+k))
-    });
-    
-    Object.defineProperty(API, 'defaultValue', {
-        get: () => values[index()],
-        set: (v) => index(values.indexOf(''+v))
-    });
+    prop('defaultKey', keys[defIdx]);
+    prop('defaultValue', values[defIdx]);
+    prop('toJSON', toJSON);
+    prop('toString', () => asString);
     
     return Object.freeze(API);
 }
@@ -113,6 +126,14 @@ function eprop(name, value, write) {
         value: value,
     });
 }
+
+eprop('fromJSON', function(obj) {
+    if(typeof obj === "string") obj = JSON.parse(obj);
+    if(obj.type != 'PrimitiveEnum') {
+        throw new TypeError('Input is not a serialized PrimitiveEnum');
+    }
+    return Enum(obj.map, obj.defaultKey);
+});
 
 // Pre-built mapping transforms
 
@@ -135,5 +156,12 @@ eprop('defaultObjectTransform', undefined, true);
 
 // Fallback default transform for arrays and objects.  Changing not recommended - may be hard-coded before 1.0.0
 eprop('defaultTransform', Enum.identity, true);
+
+// Undocumented method for unit-testing convenience
+eprop('resetDefaultTransforms', function() {
+    Enum.defaultArrayTransform = Enum.sequence;
+    Enum.defaultObjectTransform = undefined;
+    Enum.defaultTransform = Enum.identity;
+});
 
 module.exports = Enum;

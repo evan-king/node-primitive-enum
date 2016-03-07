@@ -4,8 +4,89 @@ const
     expect = require('chai').expect,
     Enum = require('./index');
 
-describe('Enums from primitive-enum', function() {
+describe('PrimitiveEnumBuilder', function() {
+    
+    it('accepts flexible configuration', function(done) {
+        const
+            e1 = Enum(['a', 'c', 'b'], {transform: Enum.bitwise, defaultKey: 'b'}),
+            e2 = Enum(['a', 'c', 'b'], {transform: Enum.bitwise}),
+            e3 = Enum(['a', 'c', 'b'], Enum.bitwise),
+            e4 = Enum(['a', 'c', 'b'], {defaultKey: 'b'}),
+            e5 = Enum({a: 1, c: 2, b: 4}, 'b');
+        
+        expect(e1.map).eql(e2.map);
+        expect(e2.map).eql(e3.map);
+        expect(e3.map).eql(e5.map);
+        expect(e1.map).not.eql(e4.map);
+        
+        expect(e1.defaultKey).eql(e4.defaultKey);
+        expect(e1.defaultKey).eql(e5.defaultKey);
+        expect(e2.defaultKey).eql(e3.defaultKey);
+        expect(e1.defaultKey).not.eql(e2.defaultKey);
+        
+        done();
+    });
+    
+    it('rejects duplicate keys or values', function(done) {
+        expect(() => Enum(['a', 'a'])).throw;
+        expect(() => Enum({a: 1, b: 1})).throw;
+        done();
+    });
+    
+    it('rejects maps with lookup conflict', function(done) {
+        expect(Enum.bind(null, {a: 'x', b: 'x'})).throw;
+        expect(Enum.bind(null, {a: 'b', b: 'c'})).throw;
+        expect(Enum.bind(null, ['a', 'a', 'b'])).throw;
+        done();
+    });
+    
+    it('rejects enum values duplicating unrelated keys', function(done) {
+        expect(() => Enum({a: 'b', b: 'c'})).throw;
+        expect(() => Enum({a: 'a', b: 'b'})).not.throw;
+        done();
+    });
+    
+    it('works with built-in array transforms', function(done) {
+        expect(Enum(['a', 'b', 'c', 'd', 'e', 'f'], Enum.bitwise).values)
+            .eql([1, 2, 4, 8, 16, 32]);
+        
+        expect(Enum(['a', 'b', 'c', 'd', 'e', 'f'], Enum.sequential).values)
+            .eql([1, 2, 3, 4, 5, 6]);
+        
+        done();
+    });
+    
+    it('works with built-in object transforms', function(done) {
+        expect(Enum(['FIRST_KEY', 'SECOND_KEY'], Enum.idString).values)
+            .eql(['first-key', 'second-key']);
+        
+        done();
+    });
+    
+    it('supports additional transforms', function(done) {
+        const transEnum = Enum(['hello', 'world'], key => key.split('').reverse().join(''));
+        expect(transEnum.values).eql(['olleh', 'dlrow']);
+        
+        const errEnum = Enum(['error', 'really error'], (key, idx) => 10000 + idx);
+        expect(errEnum.values).eql([10000, 10001]);
+        done();
+    });
+    
+    it('configures default transforms', function(done) {
+        Enum.defaultObjectTransform = (propvalue, propname) => propname.toUpperCase();
+        expect(Enum({a: 1, b: 2}).map).eql({a: 'A', b: 'B'});
+        
+        Enum.defaultArrayTransform = (value, idx) => value.toUpperCase();
+        expect(Enum(['a', 'b']).map).eql({a: 'A', b: 'B'});
+        done();
+    });
+    
+});
 
+describe('PrimitiveEnum instances', function() {
+    
+    before(Enum.resetDefaultTransforms);
+    
     const
         they = it,
         seqEnum = Enum(['a', 'b', 'c', 'd', 'e', 'f']),
@@ -22,8 +103,8 @@ describe('Enums from primitive-enum', function() {
         expect(() => mapEnum.c.d = 'q').throw;
         expect(() => mapEnum.key.c = 'q').throw;
         expect(() => mapEnum.value.c = 'q').throw;
-        expect(() => mapEnum.defaultKey.d = 'q').throw;
-        expect(() => mapEnum.defaultValue.d = 'q').throw;
+        expect(() => mapEnum.defaultKey = 'q').throw;
+        expect(() => mapEnum.defaultValue = 'q').throw;
         
         expect(() => mapEnum.c = 'q').throw;
         expect(() => mapEnum.map.c = 'q').throw;
@@ -40,15 +121,22 @@ describe('Enums from primitive-enum', function() {
         done();
     });
     
-    they('reject duplicate keys or values', function(done) {
-        expect(() => Enum(['a', 'a'])).throw;
-        expect(() => Enum({a: 1, b: 1})).throw;
+    they('are serializable', function(done) {
+        const
+            json = JSON.stringify(mapEnum),
+            copy = Enum.fromJSON(json);
+        
+        expect(copy.map).eql(mapEnum.map);
+        expect(copy.defaultValue).eql(mapEnum.defaultValue);
         done();
     });
     
-    they('reject values used as unrelated enum keys and values', function(done) {
-        expect(() => Enum({a: 'b', b: 'c'})).throw;
-        expect(() => Enum({a: 'a', b: 'b'})).not.throw;
+    they('are string-comparable', function(done) {
+        expect(''+mapEnum == Enum({a: 'x', c: 'z', b: 'y'})).true;
+        expect(''+mapEnum == Enum({a: 'x', c: 'z', b: 'aa'})).false;
+        expect(''+mapEnum == Enum({a: 'x', aa: 'z', b: 'y'})).false;
+        expect(''+mapEnum == Enum({a: 'x', c: 'z', b: 'y'}, 'b')).false;
+        expect(''+bitEnum == seqEnum).false;
         done();
     });
     
@@ -60,13 +148,6 @@ describe('Enums from primitive-enum', function() {
         }
         expect(keys).eql(mapEnum.keys);
         expect(mapEnum.count).eql(keys.length);
-        done();
-    });
-    
-    they('reject maps with lookup conflict', function(done) {
-        expect(Enum.bind(null, {a: 'x', b: 'x'})).throw;
-        expect(Enum.bind(null, {a: 'b', b: 'c'})).throw;
-        expect(Enum.bind(null, ['a', 'a', 'b'])).throw;
         done();
     });
     
@@ -100,43 +181,15 @@ describe('Enums from primitive-enum', function() {
         done();
     });
     
-    they('use built-in array transforms', function(done) {
-        const transEnum = Enum(['FIRST_KEY', 'SECOND_KEY'], Enum.idString);
-        expect(transEnum.values).eql(['first-key', 'second-key']);
-        done();
-    });
-    
-    they('support additional transforms', function(done) {
-        const transEnum = Enum(['hello', 'world'], key => key.split('').reverse().join(''));
-        expect(transEnum.values).eql(['olleh', 'dlrow']);
-        
-        const errEnum = Enum(['error', 'really error'], (key, idx) => 10000 + idx);
-        expect(errEnum.values).eql([10000, 10001]);
-        done();
-    });
-    
-    they('use default transforms', function(done) {
-        Enum.defaultObjectTransform = (propvalue, propname) => propname.toUpperCase();
-        expect(Enum({a: 1, b: 2}).map).eql({a: 'A', b: 'B'});
-        
-        Enum.defaultArrayTransform = (value, idx) => value.toUpperCase();
-        expect(Enum(['a', 'b']).map).eql({a: 'A', b: 'B'});
-        done();
-    });
-    
-    they('maintain default keys and values', function(done) {
+    they('have default keys and values', function(done) {
         expect(mapEnum.defaultKey).eql(mapEnum.keys[0]);
         expect(mapEnum.defaultValue).eql(mapEnum.values[0]);
         
-        mapEnum.defaultValue = mapEnum.values[1];
-        expect(mapEnum.defaultKey).eql(mapEnum.keys[1]);
-        expect(mapEnum.defaultValue).eql(mapEnum.values[1]);
+        const dmapEnum = Enum(mapEnum.map, mapEnum.keys[1]);
+        expect(dmapEnum.defaultKey).eql(dmapEnum.keys[1]);
+        expect(dmapEnum.defaultValue).eql(dmapEnum.values[1]);
         
-        mapEnum.defaultKey = mapEnum.keys[2];
-        expect(mapEnum.defaultKey).eql(mapEnum.keys[2]);
-        expect(mapEnum.defaultValue).eql(mapEnum.values[2]);
-        
-        expect(() => mapEnum.defaultKey = 'd').throw;
+        expect(Enum.bind(null, mapEnum.map, 'q')).throw;
         
         done();
     });

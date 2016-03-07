@@ -1,6 +1,6 @@
 {
   "name": "primitive-enum",
-  "version": "0.9.4",
+  "version": "0.9.5",
   "description": "Lightweight enums with primitive datatypes",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,10 @@
   },
   "keywords": [
     "enum",
-    "primitive"
+    "enumeration",
+    "immutable",
+    "primitive",
+    "constants"
   ],
   "author": "Evan King",
   "license": "MIT",
