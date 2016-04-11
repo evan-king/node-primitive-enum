@@ -1,5 +1,8 @@
 "use strict";
 
+(function(root) {
+
+
 /**
  * Enum builder - wraps arrays and maps in a function that
  * supplies (precomputed) key and value lists, maps, and
@@ -164,4 +167,24 @@ eprop('resetDefaultTransforms', function() {
     Enum.defaultTransform = Enum.identity;
 });
 
-module.exports = Enum;
+// Determine how to publish the library
+if(typeof module === 'object' && typeof module.exports === 'object') {
+    // Publish CommonJS module
+    module.exports = Enum;
+} else {
+    // Globally expose PrimitiveEnum, allowing rollback via PrimtiveEnum.noConflict()
+    var origModule = root.PrimitiveEnum;
+    root.PrimitiveEnum = Enum;
+    eprop('noConflict', function() {
+        root.PrimitiveEnum = origModule;
+        return Enum;
+    });
+    
+    if(typeof define === 'function' && define.amd) {
+        // Also expose as AMD
+        define('PrimitiveEnum', [], () => Enum);
+    }
+}
+
+
+})(this);

@@ -60,6 +60,10 @@ for(var key in myEnum) {
 keys; // => ['a', 'c', 'b']
 ```
 
+## In the Browser
+
+Coming soon.
+
 ## API
 
 ### Construction
@@ -248,9 +252,9 @@ play nicely with other tools that do.  For arrays only.
 const colorEnum = Enum(['RED', 'BLUE', 'COUNTRY_ROSE'], Enum.idString);
 colorEnum.map; // => {RED: 'red', BLUE: 'blue', COUNTRY_ROSE: 'country-rose'}
 ```
-Provides conversion from `SCREAMING_SNAKE_CASE` to `winding-river-format`, as
+Provides conversion from `SCREAMING_SNAKE` to `winding-river` format, as
 an option for working with classic c-style constant naming conventions, where
-string values are also needed.  For objects only.
+string values are also needed.  For arrays only.
 
 #### Example custom transforms
 
@@ -278,9 +282,9 @@ evenEnum.map; // => {a: 2, b: 4}
 By design, primitive-enum does not allow the same value to be used as two different keys
 nor as two different values.  Additionally, no same value may be used as both enum key
 and enum value, except in the case of matching key-value pairs where key == value.  This
-is partly to enforce good enum-defining conventions, and partly to minimize limitations
-of using the most convenient means of performing enum lookups - which works with keys and
-values interchangeably.
+is partly to enforce good enum-defining conventions, but primarily to minimize limitations
+of using the most concise means of performing enum lookups - which map keys and values
+interchangeably.
 
 Lastly, all enum keys and values are expected to be simple primitives, castable to strings.
 Instead supplying custom objects which cast to (unique) strings may also work, but is not
@@ -290,12 +294,12 @@ explicitly supported.
 
 The following features are planned for the 1.0 release:
 
-- Package for client-side use (with browser testing and elimination of es6 dependencies).
+- Package for client-side use (include es5-compatible `dist/primitive-enum.js` with browser test coverage).
+
+And for subsequent 1.x releases:
+
+- Add minified source `dist/primitive-enum.min.js`.
 - Add support for aliases (`options.aliases` probably as map of key => [alternate keys]).
-
-The following feature is being (weakly) considered:
-
-- Throw errors where possible when referencing an invalid enum key or value.
 
 [version-url]: https://github.com/evan-king/node-primitive-enum/releases
 [version-img]: https://img.shields.io/github/release/evan-king/node-primitive-enum.svg?style=flat

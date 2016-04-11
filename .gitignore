@@ -1,2 +1,3 @@
 node_modules/*
-npm-debug.loc
+dist/*
+npm-debug.log

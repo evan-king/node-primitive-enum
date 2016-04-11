@@ -195,3 +195,27 @@ describe('PrimitiveEnum instances', function() {
     });
     
 });
+
+if(typeof window === "object") {
+    describe('PrimitiveEnum in the browser', function() {
+        
+        it('is available as an AMD module', function(done) {
+            requirejs(['PrimitiveEnum'], function(internal) {
+                const testEnum = internal(['a', 'b']);
+                expect(testEnum.map).eql({a: 1, b: 2});
+                done();
+            });
+        });
+        
+        it('is available as a global', function() {
+            expect(window.PrimitiveEnum).eql(Enum);
+        });
+        
+        it('supports isolation via noConflict', function() {
+            const LocalEnum = window.PrimitiveEnum.noConflict();
+            expect(LocalEnum).eql(Enum);
+            expect(window.PrimitiveEnum).eql('original'); // preset in test.html
+        });
+        
+    });
+}
