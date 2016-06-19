@@ -4,6 +4,7 @@
 [![version][version-img]][version-url]
 [![npm][npmjs-img]][npmjs-url]
 [![build status][travis-img]][travis-url]
+[![Coveralls][coveralls-img]][coveralls-url]
 [![deps status][daviddm-img]][daviddm-url]
 [![mit license][license-img]][license-url]
 
