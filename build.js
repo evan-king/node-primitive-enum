@@ -55,7 +55,7 @@ browserify()
         'chai': 'chai',
         '../index': 'PrimitiveEnum',
     }))
-    .require('./test/test.js', {entry: true})
+    .require('./test/index.js', {entry: true})
     .bundle()
     .on("error", err => console.log("Error: " + err.message))
     .pipe(fs.createWriteStream('dist/test.js'));
