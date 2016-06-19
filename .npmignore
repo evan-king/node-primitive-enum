@@ -1,3 +1,6 @@
-test.js
+test/
+coverage/
+build.js
+dist/test.js
 .travis.yml
 .npmignore

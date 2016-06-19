@@ -2,7 +2,7 @@
 
 const
     expect = require('chai').expect,
-    Enum = require('./index');
+    Enum = require('../index');
 
 describe('PrimitiveEnumBuilder', function() {
     
@@ -28,21 +28,21 @@ describe('PrimitiveEnumBuilder', function() {
     });
     
     it('rejects duplicate keys or values', function(done) {
-        expect(() => Enum(['a', 'a'])).throw;
-        expect(() => Enum({a: 1, b: 1})).throw;
+        expect(() => Enum(['a', 'a'])).throw();
+        expect(() => Enum({a: 1, b: 1})).throw();
         done();
     });
     
     it('rejects maps with lookup conflict', function(done) {
-        expect(Enum.bind(null, {a: 'x', b: 'x'})).throw;
-        expect(Enum.bind(null, {a: 'b', b: 'c'})).throw;
-        expect(Enum.bind(null, ['a', 'a', 'b'])).throw;
+        expect(Enum.bind(null, {a: 'x', b: 'x'})).throw();
+        expect(Enum.bind(null, {a: 'b', b: 'c'})).throw();
+        expect(Enum.bind(null, ['a', 'a', 'b'])).throw();
         done();
     });
     
     it('rejects enum values duplicating unrelated keys', function(done) {
-        expect(() => Enum({a: 'b', b: 'c'})).throw;
-        expect(() => Enum({a: 'a', b: 'b'})).not.throw;
+        expect(() => Enum({a: 'b', b: 'c'})).throw();
+        expect(() => Enum({a: 'a', b: 'b'})).not.throw();
         done();
     });
     
@@ -195,3 +195,27 @@ describe('PrimitiveEnum instances', function() {
     });
     
 });
+
+if(typeof window === "object") {
+    describe('PrimitiveEnum in the browser', function() {
+        
+        it('is available as an AMD module', function(done) {
+            requirejs(['PrimitiveEnum'], function(internal) {
+                const testEnum = internal(['a', 'b']);
+                expect(testEnum.map).eql({a: 1, b: 2});
+                done();
+            });
+        });
+        
+        it('is available as a global', function() {
+            expect(window.PrimitiveEnum).eql(Enum);
+        });
+        
+        it('supports isolation via noConflict', function() {
+            const LocalEnum = window.PrimitiveEnum.noConflict();
+            expect(LocalEnum).eql(Enum);
+            expect(window.PrimitiveEnum).eql('original'); // preset in test.html
+        });
+        
+    });
+}

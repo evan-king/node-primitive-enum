@@ -1,2 +1,4 @@
-node_modules/*
-npm-debug.loc
+coverage/
+node_modules/
+dist/
+npm-debug.log
