@@ -104,23 +104,44 @@ describe('PrimitiveEnum instances', function() {
     });
     
     they('are immutable', function() {
-        expect(function() { mapEnum.c.d = 'q'; }).throw();
-        expect(function() { mapEnum.key = 'q'; }).throw();
-        expect(function() { mapEnum.value = 'q'; }).throw();
-        expect(function() { mapEnum.defaultKey = 'q'; }).throw();
-        expect(function() { mapEnum.defaultValue = 'q'; }).throw();
+        let throwCount = 0,
+            expectCount = 0,
+            mutEnum = Enum({a: 'x', c: 'z', b: 'y'});
         
-        expect(function() { mapEnum.c = 'q'; }).throw();
-        expect(function() { mapEnum.map.c = 'q'; }).throw();
-        expect(function() { mapEnum.keys.c = 'q'; }).throw();
-        expect(function() { mapEnum.values.c = 'q'; }).throw();
-        expect(function() { mapEnum.reverseMap.c = 'q'; }).throw();
+        function tryModify(baseObj, prop) {
+            let val = 'blah';
+            try {
+                expectCount++;
+                baseObj[prop] = val;
+            } catch(ex) {
+                throwCount++;
+                expect(ex instanceof TypeError).true;
+            }
+            expect(baseObj[prop]).not.eql(val);
+        }
         
-        expect(function() { mapEnum.d = 'q'; }).throw();
-        expect(function() { mapEnum.map.d = 'q'; }).throw();
-        expect(function() { mapEnum.keys.d = 'q'; }).throw();
-        expect(function() { mapEnum.values.d = 'q'; }).throw();
-        expect(function() { mapEnum.reverseMap.d = 'q'; }).throw();
+        tryModify(mutEnum, 'key');
+        tryModify(mutEnum, 'value');
+        tryModify(mutEnum, 'defaultKey');
+        tryModify(mutEnum, 'defaultValue');
+        
+        tryModify(mutEnum, 'c');
+        tryModify(mutEnum.map, 'c');
+        tryModify(mutEnum.keys, 'c');
+        tryModify(mutEnum.values, 'c');
+        tryModify(mutEnum.reverseMap, 'c');
+        
+        tryModify(mutEnum, 'd');
+        tryModify(mutEnum.map, 'd');
+        tryModify(mutEnum.keys, 'd');
+        tryModify(mutEnum.values, 'd');
+        tryModify(mutEnum.reverseMap, 'd');
+        
+        expect(throwCount).eql(expectCount);
+        
+        // Browsers do not consistently throw an error for this case,
+        // but aren't necessessarily accepting the assignment either.
+        tryModify(mapEnum.c, 'd', 'q');
     });
     
     they('are serializable', function() {
