@@ -1,6 +1,6 @@
+test/
+coverage/
 build.js
-test.js
-test.html
 dist/test.js
 .travis.yml
 .npmignore

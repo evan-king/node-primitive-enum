@@ -81,7 +81,7 @@ const Enum = function PrimitiveEnumBuilder(inputMap, options) {
         map[''+key] = val;
         reverseMap[''+val] = key;
         prop(key, val, true);
-        prop(val, key);
+        if(''+key !== ''+val) prop(val, key);
     }
     
     let transform = opts.transform;

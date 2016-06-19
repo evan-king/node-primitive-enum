@@ -53,9 +53,9 @@ browserify()
     })
     .transform(dependencyShim.configure({
         'chai': 'chai',
-        './index': 'PrimitiveEnum',
+        '../index': 'PrimitiveEnum',
     }))
-    .require('./test.js', {entry: true})
+    .require('./test/test.js', {entry: true})
     .bundle()
     .on("error", err => console.log("Error: " + err.message))
     .pipe(fs.createWriteStream('dist/test.js'));
